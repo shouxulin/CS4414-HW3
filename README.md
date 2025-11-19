@@ -315,16 +315,43 @@ Component4 combines the user's question with retrieved documents into a structur
 
 
 ## Component 5: LLM Generation
-For generation step, you will take the augmented prompt and generate a natural language response.
-You'll use **TinyLlama-1.1B-Chat-v0.3**, a surprisingly capable small model that takes 0.7-0.8 GB of memory and could run on CPU.
+For generation step, you will take the augmented prompt and generate a natural language response. We provided several options of models you can select from, you can choose one of them to incorperate in your pipeline. In Part3, you will explore more on other options to learn about the tradeoffs.
 
-**Download the model:**
+- **TinyLlama-1.1B-Chat-v0.3**, a surprisingly capable small model with 1.1B parameters (takes 0.7-0.8 GB of memory) and could run on CPU.
+
 You can download the model checkpoint to your local directory via the command
 ```
 wget https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v0.3-GGUF/resolve/main/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
 ```
 
-If you are going to use CPP API of this model, you can refer to the notes and demo we taught on [recitation 9](https://github.com/aliciayuting/CS4414Demo/tree/main/recitation9), that shows how to link and compile the C++ program with the llama.cpp library.
+- **LLama3.2-3B**, a slightly larger and more recent model. Since we want to run the model on CPU, we use Q4_K_M (4-bit K-quant medium) quantization, which reduced the original model size and achieved a balance between its speed and response quality.
+
+You can learn more about the model information from its huggingface checkpoint: https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF 
+
+You can donwload the model checkpoint to your local directory via the command
+```
+wget https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf
+```
+
+
+- **Qwen2-1.5B-instruct**, Qwen2-1.5B a model that is a lot more capable and good at question answering type of tasks. The base model (without "Instruct") means that the model is trained on large text corpora to predict the next token and learn the general language patter. "Instruct" indeicates that this model has been fine-tuned for instruction-following tasks. It undergoes additioanl supervised fine-tuning (SFT) with data look like "Here is an instruction: ... Produce the answer: ..." That helps the model handle direct instructions, user queries, prompts etc.
+
+You can learn more about the model information from its huggingface checkpoint: https://huggingface.co/Qwen/Qwen2-1.5B-Instruct-GGUF?utm_source=chatgpt.com 
+
+You can download the model checkpoint to your local directory via the command
+```
+wget “https://huggingface.co/Qwen/Qwen2-1.5B-Instruct-GGUF/resolve/main/qwen2-1_5b-instruct-q4_0.gguf”   -O qwen2-1_5b-instruct-q4_0.gguf
+```
+
+- **Qwen2-7B-Instruct**, Qwen2-7B-Instruct is a larger model, with 7 Billion parameters. It has more parameters, deeper and wider layers. It can capture more complex relationships, improving reasoning, coding, multilingual and general performance than Qwen2-1.5B. Note that this model is a lot larger and requires more memory to store and run. Although it is runable on CPU, you are not required to run this model, especially if your local machine is not as powerful to suppport this.
+
+You can download the model checkpoint to your local directory via the command
+```
+wget "https://huggingface.co/Qwen/Qwen2-7B-Instruct-GGUF/resolve/main/qwen2-7b-instruct-q4_0.gguf"      -O qwen2-7b-instruct-q4_0.gguf
+```
+
+**Generation with LLM model:**
+If you are going to use CPP API to call the LLM generation model, you can refer to the notes and demo we taught on [recitation 9](https://github.com/aliciayuting/CS4414Demo/tree/main/recitation9), that shows how to link and compile the C++ program with the llama.cpp library.
 You can also use Python API of this model, we showed in [recitation 11](https://github.com/aliciayuting/CS4414Demo/tree/main/recitation11). 
 
 To install the Python dependency you can run:
@@ -365,15 +392,16 @@ Please remember to submit all of the above files, especially the recording, sinc
 
 # Part 3. System Analysis and Optimizations (Due Dec 5)
 
-System Analysis by components:
+**System Analysis by components:**
 In this class, we learned that the most important step for understanding and optimizing a system entails detailed benchmarking and performance measurement. We would like you to write a small essay about your findings.  Report the distribution of latency breakdown for each component in your RAG pipeline (document retrieval, question augmentation, LLM generation). Use plots to show the distribution clearly of each step and between steps.
 
+**Opmizing components:**
 You can do more than the minimum but every solution MUST answer the following questions:
 -	What is the time breakdown of different components in the system? Do you observe the major bottleneck of your system? Are there places you can optimize?
 -	For AI system, not only do we care about system performance but also about accuracy. What are some tradeoffs in this system you can think of? Try at least two of the below optimization methods, report the change in performance, and discuss the tradeoffs you observe.
     -	A different encoder model that generates embeddings of dimensions greater than 768 or smaller than 768 of BGE encoder model we used in Part 1
     -	ANN search method top-K number, what if we set the top-K number of ANN search to be greater than 3 as we used in Part 2, or smaller than 3 by only selecting top 1
-    -	LLM generation model, what happens if we use a smaller model or larger model? Do you observe it running faster or slower, giving more reasonable results or less reasonable? Given the limited resource on ugclinux server, you can also try with OpenAI API call, there are limits in the number of calls one can make in a given day, but connect your pipeline with it and give a few tries to see how that response compares to the results from the TinyLlama-1.1B-Chat-v0.3-GGUF model we used in Part 2?
+    -	LLM generation model, what happens if we use a smaller model or larger model? Do you observe it running faster or slower, giving more reasonable results or less reasonable? (You are also free to try with other models that are not in above lists provided, even OpenAI API call, there are limits in the number of calls one can make in a given day, but connect your pipeline with it and give a few tries to see how that response compares to the results from the TinyLlama-1.1B-Chat-v0.3-GGUF model we used in Part 2)
 
 
 
@@ -384,3 +412,8 @@ The size of the documents could grow to millions or trillions, taking GB to TB m
 
 
 
+## Part3 What to submit:
+The writeup you submit should include
+1.  system performance measurements breakdown by components
+2.  Answer the question based on experiments with other configurations or models for different components in the pipeline
+3.  Testing of Vector search optimization ideas and report of the performance measurements
